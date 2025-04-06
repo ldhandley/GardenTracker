@@ -5,7 +5,7 @@ I'm customizing an app for myself to keep track of my garden's plants, and in th
 * Stores data about plants
 * Allows user to update data about plants (CRUD)
 
-Future Ideas:
+## Future Ideas:
 * Organize annual photos
 * Allows user to add observations about plants, organized by date
 * Visualization of observations over time

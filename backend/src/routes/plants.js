@@ -11,13 +11,13 @@ router.get('/', (req, res) => {
 
 // Add new plant
 router.post('/', (req, res) => {
-  const { name, planting_date, emergence_start, emergence_end, location, notes } = req.body;
+  const { name, species, planting_date, emergence_start, emergence_end, location, notes } = req.body;
 
   const stmt = db.prepare(`
     INSERT INTO plants (name, species, planting_date, emergence_start, emergence_end, location, notes)
-    VALUES (?, ?, ?, ?, ?, ?)
+    VALUES (?, ?, ?, ?, ?, ?, ?)
   `);
-  const info = stmt.run(name, planting_date, emergence_start, emergence_end, location, notes);
+  const info = stmt.run(name, species, planting_date, emergence_start, emergence_end, location, notes);
 
   const newPlant = db.prepare('SELECT * FROM plants WHERE id = ?').get(info.lastInsertRowid);
   res.status(201).json(newPlant);
@@ -29,5 +29,26 @@ router.delete('/:id', (req, res) => {
   stmt.run(req.params.id);
   res.status(204).end();
 });
+
+// Update plant by ID
+router.put('/:id', (req, res) => {
+    const id = req.params.id;
+    const { name, species, planting_date, emergence_start, emergence_end, location, notes } = req.body;
+  
+    const stmt = db.prepare(`
+      UPDATE plants
+      SET name = ?, species = ?, planting_date = ?, emergence_start = ?, emergence_end = ?, location = ?, notes = ?
+      WHERE id = ?
+    `);
+  
+    const result = stmt.run(name, species, planting_date, emergence_start, emergence_end, location, notes, id);
+  
+    if (result.changes === 0) {
+      return res.status(404).json({ error: 'Plant not found' });
+    }
+  
+    const updatedPlant = db.prepare('SELECT * FROM plants WHERE id = ?').get(id);
+    res.json(updatedPlant);
+  });
 
 module.exports = router;

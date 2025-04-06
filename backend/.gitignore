@@ -1,0 +1,23 @@
+# Node modules
+node_modules/
+
+# Environment variables
+.env
+
+# SQLite database file
+*.db
+*.db-shm
+*.db-wal
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+
+# Optional OS-specific files
+.DS_Store
+Thumbs.db
+
+# Editor junk
+.vscode/
+.idea/

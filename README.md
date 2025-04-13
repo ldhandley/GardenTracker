@@ -6,6 +6,7 @@ I'm customizing an app for myself to keep track of my garden's plants, and in th
 * Allows user to update data about plants (CRUD)
 
 ## Future Ideas:
+* Use a drone photo of the yard to let user "paint" where plants are; save data about where plants are actually located!!
 * Organize annual photos
 * Allows user to add observations about plants, organized by date
 * Visualization of observations over time

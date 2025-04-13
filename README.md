@@ -11,3 +11,7 @@ I'm customizing an app for myself to keep track of my garden's plants, and in th
 * Visualization of observations over time
 * Requests updates about plants from user (if plant hasn't been observed on in a certain period of time)
 
+## Current Development Process
+Two Terminals:
+* `npm run dev` inside frontend/
+* `npm run dev` inside backend/

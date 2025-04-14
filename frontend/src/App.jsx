@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 
 function App() {
   const [plants, setPlants] = useState([]);
+  const [editingId, setEditingId] = useState(null);
   const [form, setForm] = useState({
     name: '',
     species: '',
@@ -29,13 +30,30 @@ function App() {
           <form className="bg-mint shadow-md rounded p-4 mb-6 grid gap-3"
             onSubmit={async (e) => {
               e.preventDefault();
-              const res = await fetch('http://localhost:4000/api/plants', {
-                method: 'POST',
+
+              const url = editingId
+                ? `http://localhost:4000/api/plants/${editingId}`
+                : `http://localhost:4000/api/plants`;
+
+              const method = editingId ? 'PUT' : 'POST';
+
+              const res = await fetch(url, {
+                method,
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(form),
               });
-              const newPlant = await res.json();
-              setPlants([...plants, newPlant]);
+
+              const updatedPlant = await res.json();
+
+              if (editingId) {
+                setPlants((prev) =>
+                  prev.map((p) => (p.id === editingId ? updatedPlant : p))
+                );
+              } else {
+                setPlants((prev) => [...prev, updatedPlant]);
+              }
+
+              // Reset form
               setForm({
                 name: '',
                 species: '',
@@ -45,9 +63,12 @@ function App() {
                 location: '',
                 notes: '',
               });
+              setEditingId(null);
             }}
           >
-            <h2 className="text-xl font-semibold mb-2">Add a Plant</h2>
+            <h2 className="text-xl font-semibold mb-2">
+              {editingId ? 'Update a Plant' : 'Add a Plant'}
+            </h2>
             {Object.entries(form).map(([field, value]) => (
               <div key={field}>
                 <label className="block text-sm font-medium capitalize mb-1">
@@ -67,21 +88,41 @@ function App() {
               </div>
             ))}
             <button className="bg-olive hover:bg-sage text-white py-2 px-4 rounded transition">
-              Add Plant
+              {editingId ? 'Update Plant' : 'Add Plant'}
             </button>
           </form>
         </div>
         <div>
           {/* Display Plant List */}
-          <ul className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
-            {plants.map((p) => (
-              <li key={p.id} className="border p-3 rounded shadow bg-white relative">
-                <h2 className="text-lg font-semibold text-soil">
-                  {p.name} <span className="text-gray-500 text-sm">({p.species})</span>
-                </h2>
-                <p className="text-sm">Planted: {p.planting_date}</p>
-                <p className="text-sm">Location: {p.location}</p>
-                {p.notes && <p className="text-sm text-gray-700 mt-1">{p.notes}</p>}
+          <ul className="grid gap-4 grid-cols-[repeat(auto-fit,minmax(300px,1fr))]">            {plants.map((p) => (
+            <li key={p.id} className="relative bg-white border border-sage p-4 rounded-lg shadow-md min-w-[300px]">
+              <h2 className="text-lg font-semibold text-soil mb-1">
+                {p.name} <span className="text-gray-500 text-sm">({p.species})</span>
+              </h2>
+              <p className="text-sm">Planted: {p.planting_date}</p>
+              <p className="text-sm">Location: {p.location}</p>
+              {p.notes && <p className="text-sm text-gray-700 mt-1">{p.notes}</p>}
+
+              <div className="absolute top-2 right-2 flex gap-2">
+                <button
+                  onClick={() => {
+                    setForm({
+                      name: p.name || '',
+                      species: p.species || '',
+                      planting_date: p.planting_date || '',
+                      emergence_start: p.emergence_start || '',
+                      emergence_end: p.emergence_end || '',
+                      location: p.location || '',
+                      notes: p.notes || '',
+                    });
+                    setEditingId(p.id);
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                  }}
+                  className="text-blue-500 hover:text-blue-700 text-sm"
+                  title="Edit plant"
+                >
+                  ✏️
+                </button>
 
                 <button
                   onClick={async () => {
@@ -93,13 +134,14 @@ function App() {
                     });
                     setPlants(plants.filter((plant) => plant.id !== p.id));
                   }}
-                  className="absolute top-2 right-2 text-red-500 hover:text-red-700 text-sm"
+                  className="text-red-500 hover:text-red-700 text-sm"
                   title="Delete plant"
                 >
                   ❌
                 </button>
-              </li>
-            ))}
+              </div>
+            </li>
+          ))}
           </ul>
         </div>
       </div>

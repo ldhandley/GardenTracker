@@ -54,7 +54,11 @@ function App() {
                   {field.replace(/_/g, ' ')}
                 </label>
                 <input
-                  type={field.includes('date') ? 'date' : 'text'}
+                  type={
+                    field.includes('date') || field.includes('emergence')
+                      ? 'date'
+                      : 'text'
+                  }
                   value={value}
                   onChange={(e) => setForm({ ...form, [field]: e.target.value })}
                   className="w-full p-2 border rounded"
@@ -65,18 +69,35 @@ function App() {
             <button className="bg-olive hover:bg-sage text-white py-2 px-4 rounded transition">
               Add Plant
             </button>
-
           </form>
         </div>
         <div>
           {/* Display Plant List */}
           <ul className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
             {plants.map((p) => (
-              <li key={p.id} className="bg-white border-l-4 border-sage p-3 rounded shadow">
-                <h2 className="text-lg font-semibold text-soil">{p.name} <span className="text-gray-500 text-sm">({p.species})</span></h2>
+              <li key={p.id} className="border p-3 rounded shadow bg-white relative">
+                <h2 className="text-lg font-semibold text-soil">
+                  {p.name} <span className="text-gray-500 text-sm">({p.species})</span>
+                </h2>
                 <p className="text-sm">Planted: {p.planting_date}</p>
                 <p className="text-sm">Location: {p.location}</p>
                 {p.notes && <p className="text-sm text-gray-700 mt-1">{p.notes}</p>}
+
+                <button
+                  onClick={async () => {
+                    const confirmDelete = window.confirm(`Are you sure you want to delete "${p.name}"?`);
+                    if (!confirmDelete) return;
+
+                    await fetch(`http://localhost:4000/api/plants/${p.id}`, {
+                      method: 'DELETE',
+                    });
+                    setPlants(plants.filter((plant) => plant.id !== p.id));
+                  }}
+                  className="absolute top-2 right-2 text-red-500 hover:text-red-700 text-sm"
+                  title="Delete plant"
+                >
+                  ❌
+                </button>
               </li>
             ))}
           </ul>
